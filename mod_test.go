@@ -36,10 +36,13 @@ func TestDo(t *testing.T) {
 	client := New(isHeadless)
 	defer client.Close()
 
+	// set timeout, default is 120secs
+	client.SetTimeout(60)
+
 	err := client.Login(USERNAME, PASSWORD)
 	assert.NoError(t, err)
 
-	err = client.Post(isPost, sleepSec, MSG, files)
+	err = client.Post(isPost, sleepSec, MSG, files...)
 	assert.NoError(t, err)
 
 	time.Sleep(10 * time.Second)
