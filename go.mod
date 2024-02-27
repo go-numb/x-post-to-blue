@@ -1,4 +1,4 @@
-module xpostblue
+module github.com/go-numb/xpostblue
 
 go 1.21.6
 
