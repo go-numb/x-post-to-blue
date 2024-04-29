@@ -4,6 +4,7 @@ import (
 	"errors"
 	"fmt"
 	"io"
+	"math/rand"
 	"net/http"
 	"net/url"
 	"os"
@@ -157,6 +158,8 @@ func (p *ClientBody) Login(username, password string) error {
 		return fmt.Errorf("%v > could not fill to account input", err)
 	}
 
+	time.Sleep(time.Duration(rand.Intn(2000)) * time.Millisecond)
+
 	if err := p.Page.Locator(p.PostLocator.BtnID).Tap(); err != nil {
 		return fmt.Errorf("%v > could not click to next button", err)
 	}
@@ -166,9 +169,13 @@ func (p *ClientBody) Login(username, password string) error {
 		return fmt.Errorf("%v > could not fill to password input", err)
 	}
 
+	time.Sleep(time.Duration(rand.Intn(2000)) * time.Millisecond)
+
 	if err := p.Page.Locator(p.PostLocator.BtnPass).Nth(0).Tap(); err != nil {
 		return fmt.Errorf("%v > could not click to login button", err)
 	}
+
+	time.Sleep(time.Duration(rand.Intn(2000)) * time.Millisecond)
 
 	return nil
 }

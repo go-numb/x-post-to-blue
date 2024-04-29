@@ -20,6 +20,10 @@ func context(device *playwright.DeviceDescriptor, browser playwright.Browser) (p
 		Locale: playwright.String("ja-JP"),
 		// Timezone: "Asia/Tokyo"
 		TimezoneId: playwright.String("Asia/Tokyo"),
+
+		AcceptDownloads:  playwright.Bool(true),
+		RecordHarContent: playwright.HarContentPolicyAttach,
+		ServiceWorkers:   playwright.ServiceWorkerPolicyAllow,
 	})
 	if err != nil {
 		return nil, err
