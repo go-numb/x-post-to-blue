@@ -46,6 +46,7 @@ type ClientBody struct {
 	PostLocator *PostLocator
 
 	MaxWaitSecForRequest int
+	MaxWaitSecForInput   int
 }
 
 type PostLocator struct {
@@ -130,6 +131,7 @@ func New(isHeadless bool) *ClientBody {
 		},
 
 		MaxWaitSecForRequest: 120,
+		MaxWaitSecForInput:   5,
 	}
 }
 
@@ -146,6 +148,8 @@ func (p *ClientBody) SetTimeout(sec int) *ClientBody {
 }
 
 func (p *ClientBody) Login(username, password string) error {
+	maxWaitSec := p.MaxWaitSecForInput * 1000
+
 	// to twitter.com/i/flow/login
 	u, _ := url.Parse(p.PostLocator.LoginURL)
 	if _, err := p.Page.Goto(u.String()); err != nil {
@@ -158,35 +162,41 @@ func (p *ClientBody) Login(username, password string) error {
 		return fmt.Errorf("%v > could not fill to account input", err)
 	}
 
-	time.Sleep(time.Duration(rand.Intn(2000)) * time.Millisecond)
+	time.Sleep(time.Duration(rand.Intn(maxWaitSec))*time.Millisecond + time.Second)
 
 	if err := p.Page.Locator(p.PostLocator.BtnID).Tap(); err != nil {
 		return fmt.Errorf("%v > could not click to next button", err)
 	}
+
+	time.Sleep(time.Duration(rand.Intn(maxWaitSec))*time.Millisecond + time.Second)
 
 	// input Password
 	if err := p.Page.Locator(p.PostLocator.InputPass).Fill(password); err != nil {
 		return fmt.Errorf("%v > could not fill to password input", err)
 	}
 
-	time.Sleep(time.Duration(rand.Intn(2000)) * time.Millisecond)
+	time.Sleep(time.Duration(rand.Intn(maxWaitSec))*time.Millisecond + time.Second)
 
 	if err := p.Page.Locator(p.PostLocator.BtnPass).Nth(0).Tap(); err != nil {
 		return fmt.Errorf("%v > could not click to login button", err)
 	}
 
-	time.Sleep(time.Duration(rand.Intn(2000)) * time.Millisecond)
+	time.Sleep(time.Duration(rand.Intn(maxWaitSec))*time.Millisecond + time.Second)
 
 	return nil
 }
 
 func (p *ClientBody) Post(isPost bool, sleepSecForUpload int, msg string, files ...string) error {
+	maxWaitSec := p.MaxWaitSecForInput * 1000
+
 	// to pro.twitter.com
 	u, _ := url.Parse(p.PostLocator.ProURL)
 	if _, err := p.Page.Goto(u.String()); err != nil {
 		return fmt.Errorf("%v > could not goto", err)
 	}
 	log.Debug().Msgf("target url: %s", u.String())
+
+	time.Sleep(time.Duration(rand.Intn(maxWaitSec))*time.Millisecond + time.Second)
 
 	// Enter text into elements with contententeditable attribute
 	isVisible, err := p.Page.Locator(p.PostLocator.ConfirmArea).IsVisible()
@@ -198,10 +208,14 @@ func (p *ClientBody) Post(isPost bool, sleepSecForUpload int, msg string, files 
 		if err := p.Page.Locator(p.PostLocator.ToPost).Tap(); err != nil {
 			log.Debug().Msgf("%v", fmt.Errorf("%v > ok or could not tap to %s element", err, p.PostLocator.ToPost))
 		}
+
+		time.Sleep(time.Duration(rand.Intn(maxWaitSec))*time.Millisecond + time.Second)
 	}
 	if err := p.Page.Locator(p.PostLocator.InputMsg).Fill(msg); err != nil {
 		return fmt.Errorf("%v > could not fill to tweet input", err)
 	}
+
+	time.Sleep(time.Duration(rand.Intn(maxWaitSec))*time.Millisecond + time.Second)
 
 	// upload files
 	if err := p.uploadFiles(isPost, files...); err != nil {
