@@ -162,26 +162,26 @@ func (p *ClientBody) Login(username, password string) error {
 		return fmt.Errorf("%v > could not fill to account input", err)
 	}
 
-	time.Sleep(time.Duration(rand.Intn(maxWaitSec))*time.Millisecond + time.Second)
+	wait(maxWaitSec)
 
 	if err := p.Page.Locator(p.PostLocator.BtnID).Tap(); err != nil {
 		return fmt.Errorf("%v > could not click to next button", err)
 	}
 
-	time.Sleep(time.Duration(rand.Intn(maxWaitSec))*time.Millisecond + time.Second)
+	wait(maxWaitSec)
 
 	// input Password
 	if err := p.Page.Locator(p.PostLocator.InputPass).Fill(password); err != nil {
 		return fmt.Errorf("%v > could not fill to password input", err)
 	}
 
-	time.Sleep(time.Duration(rand.Intn(maxWaitSec))*time.Millisecond + time.Second)
+	wait(maxWaitSec)
 
 	if err := p.Page.Locator(p.PostLocator.BtnPass).Nth(0).Tap(); err != nil {
 		return fmt.Errorf("%v > could not click to login button", err)
 	}
 
-	time.Sleep(time.Duration(rand.Intn(maxWaitSec))*time.Millisecond + time.Second)
+	wait(maxWaitSec)
 
 	return nil
 }
@@ -196,7 +196,7 @@ func (p *ClientBody) Post(isPost bool, sleepSecForUpload int, msg string, files 
 	}
 	log.Debug().Msgf("target url: %s", u.String())
 
-	time.Sleep(time.Duration(rand.Intn(maxWaitSec))*time.Millisecond + time.Second)
+	wait(maxWaitSec)
 
 	// Enter text into elements with contententeditable attribute
 	isVisible, err := p.Page.Locator(p.PostLocator.ConfirmArea).IsVisible()
@@ -209,13 +209,13 @@ func (p *ClientBody) Post(isPost bool, sleepSecForUpload int, msg string, files 
 			log.Debug().Msgf("%v", fmt.Errorf("%v > ok or could not tap to %s element", err, p.PostLocator.ToPost))
 		}
 
-		time.Sleep(time.Duration(rand.Intn(maxWaitSec))*time.Millisecond + time.Second)
+		wait(maxWaitSec)
 	}
 	if err := p.Page.Locator(p.PostLocator.InputMsg).Fill(msg); err != nil {
 		return fmt.Errorf("%v > could not fill to tweet input", err)
 	}
 
-	time.Sleep(time.Duration(rand.Intn(maxWaitSec))*time.Millisecond + time.Second)
+	wait(maxWaitSec)
 
 	// upload files
 	if err := p.uploadFiles(isPost, files...); err != nil {
@@ -345,4 +345,12 @@ func SetError(err error, msg any) error {
 	}
 
 	return fmt.Errorf("%v > %v", err, errors.New(s))
+}
+
+func wait(ms int) {
+	s := rand.NewSource(time.Now().UnixNano())
+	r := rand.New(s)
+
+	millisec := time.Duration(r.Intn(ms)) * time.Millisecond
+	time.Sleep(time.Second + millisec)
 }
