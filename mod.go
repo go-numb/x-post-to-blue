@@ -195,11 +195,11 @@ func (p *ClientBody) Login(username, password string, tel *string) error {
 
 	// check login
 	// 再確認のための電話番号入力画面が表示されているか確認する
-	isVisible, err := p.Page.Locator(p.PostLocator.ToPost).IsVisible()
+	isVisible, err := p.Page.Locator(p.PostLocator.InputTel).IsVisible()
 	if err != nil {
 		return fmt.Errorf("%v > could not check the element is visible", err)
 	}
-	if !isVisible {
+	if isVisible {
 		if tel == nil {
 			return fmt.Errorf("could not login, has not telephone number")
 		}
