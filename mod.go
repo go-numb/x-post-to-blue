@@ -191,8 +191,6 @@ func (p *ClientBody) Login(username, password string, tel *string) error {
 
 	wait(maxWaitSec)
 
-	time.Sleep(300 * time.Second)
-
 	// check login
 	// 再確認のための電話番号入力画面が表示されているか確認する
 	isVisible, err := p.Page.Locator(p.PostLocator.BtnID).IsVisible()
