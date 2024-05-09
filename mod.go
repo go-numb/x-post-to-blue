@@ -215,7 +215,7 @@ func (p *ClientBody) Login(username, password string, tel *string) error {
 		wait(maxWaitSec)
 
 		// ログインボタンをクリックする
-		if err := p.Page.Locator(p.PostLocator.BtnTel).Tap(); err != nil {
+		if err := p.Page.Locator(p.PostLocator.BtnTel).Nth(0).Tap(); err != nil {
 			return fmt.Errorf("%v > could not click to login button where comfirm telephone", err)
 		}
 	}
