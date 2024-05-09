@@ -26,6 +26,8 @@ const (
 	BTNID     = "xpath=//span[text()='次へ']"
 	INPUTPASS = "input[type='password']"
 	BTNPASS   = "[data-testid='LoginForm_Login_Button']"
+	INPUTTEL  = "[data-testid='ocfEnterTextTextInput']"
+	BTNTEL    = "[data-testid='ocfEnterTextNextButton']"
 
 	// Post section
 	CONFIRMAREA = "[data-testid='tweetTextarea_0']"
@@ -57,6 +59,9 @@ type PostLocator struct {
 	BtnID     string
 	InputPass string
 	BtnPass   string
+
+	InputTel string
+	BtnTel   string
 
 	ConfirmArea string
 	ToPost      string
@@ -123,6 +128,9 @@ func New(isHeadless bool) *ClientBody {
 			InputPass: INPUTPASS,
 			BtnPass:   BTNPASS,
 
+			InputTel: INPUTTEL,
+			BtnTel:   BTNTEL,
+
 			ConfirmArea: CONFIRMAREA,
 			ToPost:      TOPOST,
 			InputMsg:    INPUTMSG,
@@ -147,7 +155,7 @@ func (p *ClientBody) SetTimeout(sec int) *ClientBody {
 	return p
 }
 
-func (p *ClientBody) Login(username, password string) error {
+func (p *ClientBody) Login(username, password string, tel *string) error {
 	maxWaitSec := p.MaxWaitSecForInput * 1000
 
 	// to twitter.com/i/flow/login
@@ -182,6 +190,35 @@ func (p *ClientBody) Login(username, password string) error {
 	}
 
 	wait(maxWaitSec)
+
+	time.Sleep(300 * time.Second)
+
+	// check login
+	// 再確認のための電話番号入力画面が表示されているか確認する
+	isVisible, err := p.Page.Locator(p.PostLocator.ToPost).IsVisible()
+	if err != nil {
+		return fmt.Errorf("%v > could not check the element is visible", err)
+	}
+	if !isVisible {
+		if tel == nil {
+			return fmt.Errorf("could not login, has not telephone number")
+		}
+
+		log.Debug().Msg("could not login, input telephone number")
+
+		// 画面に一つだけの入力欄がある場合、入力する
+		tel := *tel
+		if err := p.Page.Locator(p.PostLocator.InputTel).Fill(tel); err != nil {
+			return fmt.Errorf("%v > could not fill to telephone input", err)
+		}
+
+		wait(maxWaitSec)
+
+		// ログインボタンをクリックする
+		if err := p.Page.Locator(p.PostLocator.BtnTel).Tap(); err != nil {
+			return fmt.Errorf("%v > could not click to login button where comfirm telephone", err)
+		}
+	}
 
 	return nil
 }

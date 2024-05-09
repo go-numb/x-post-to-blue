@@ -11,6 +11,7 @@ import (
 const (
 	USERNAME = ""
 	PASSWORD = ""
+	TELPHONE = ""
 
 	MSG = `むすめのむかし、とある村に小さなおうじ様が住んでいました。おうじ様は美しい王国の王子であり、優しい心を持っていました。
 
@@ -39,7 +40,11 @@ func TestDo(t *testing.T) {
 	// set timeout, default is 120secs
 	client.SetTimeout(60)
 
-	err := client.Login(USERNAME, PASSWORD)
+	// string to *string
+	temp := TELPHONE
+	var tel *string = &temp
+
+	err := client.Login(USERNAME, PASSWORD, tel)
 	assert.NoError(t, err)
 
 	err = client.Post(isPost, sleepSec, MSG, files...)
