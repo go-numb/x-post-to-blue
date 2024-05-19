@@ -193,33 +193,34 @@ func (p *ClientBody) Login(username, password string, tel *string) error {
 
 	// check login
 	// 再確認のための電話番号入力画面が表示されているか確認する
-	isVisible, err := p.Page.Locator(p.PostLocator.BtnID).IsVisible()
-	if err != nil {
-		return fmt.Errorf("%v > could not check the element is visible", err)
-	} else {
-		log.Debug().Msgf("is visible next comfirm button: %t", isVisible)
-	}
-	if isVisible {
-		if tel == nil {
-			return fmt.Errorf("could not login, has not telephone number")
-		}
-
-		log.Debug().Msg("could not login, input telephone number")
-
-		// 画面に一つだけの入力欄がある場合、入力する
-		tel := *tel
-		if err := p.Page.Locator(p.PostLocator.InputTel).Fill(tel); err != nil {
-			return fmt.Errorf("%v > could not fill to telephone input", err)
-		}
-
-		wait(maxWaitSec)
-
-		// ログインボタンをクリックする
-		if err := p.Page.Locator(p.PostLocator.BtnTel).Nth(0).Tap(); err != nil {
-			return fmt.Errorf("%v > could not click to login button where comfirm telephone", err)
-		}
+	if err := p.CheckAdditionalCredentials(*tel); err != nil {
+		// 判別不可能、または、再確認再入力後も同様の画面が表示される場合、エラーを返す
+		return fmt.Errorf("%v > could not check additional credentials", err)
 	}
 
+	return nil
+}
+
+// CheckAdditionalCredentials 再確認のための電話番号入力画面が表示されているか確認する
+func (p *ClientBody) CheckAdditionalCredentials(tel string) error {
+	time.Sleep(1 * time.Second)
+	if count, err := p.Page.Locator("input[data-testid='ocfEnterTextTextInput']").Count(); err != nil {
+		return fmt.Errorf("twitter/x login check additional cred, taraget element failed: %v", err)
+	} else if count != 0 {
+		log.Error().Msg("twitter/x start additional credentials login")
+
+		if tel == "" {
+			return fmt.Errorf("there is additional login, retry, but has not telephone number")
+		}
+
+		p.Page.Locator("input[data-testid='ocfEnterTextTextInput']").Fill(tel)
+		p.Page.Locator("div[data-testid='ocfEnterTextNextButton']").Tap()
+
+		time.Sleep(1 * time.Second)
+		if count, err := p.Page.Locator("input[data-testid='ocfEnterTextTextInput']").Count(); err != nil || count != 0 {
+			return fmt.Errorf("unable to login to twitter. please try again with the correct credentials")
+		}
+	}
 	return nil
 }
 
