@@ -47,8 +47,8 @@ type ClientBody struct {
 
 	PostLocator *PostLocator
 
-	MaxWaitSecForRequest int
-	MaxWaitSecForInput   int
+	MaxWaitSecForConfirmFIle int
+	MaxWaitSecForInput       int
 }
 
 type PostLocator struct {
@@ -138,8 +138,8 @@ func New(isHeadless bool) *ClientBody {
 			BtnPost:     BTNPOST,
 		},
 
-		MaxWaitSecForRequest: 120,
-		MaxWaitSecForInput:   5,
+		MaxWaitSecForConfirmFIle: 120,
+		MaxWaitSecForInput:       5,
 	}
 }
 
@@ -149,9 +149,18 @@ func (p *ClientBody) Close() {
 	p.Pw.Stop()
 }
 
-func (p *ClientBody) SetTimeout(sec int) *ClientBody {
+func (p *ClientBody) SetDefaultTimeout(sec int) *ClientBody {
 	p.Page.SetDefaultTimeout(*playwright.Float(float64(sec * 1000)))
-	p.MaxWaitSecForRequest = sec
+	return p
+}
+
+func (p *ClientBody) SetWaitForUpdateFile(sec int) *ClientBody {
+	p.MaxWaitSecForConfirmFIle = sec
+	return p
+}
+
+func (p *ClientBody) SetWaitForInput(sec int) *ClientBody {
+	p.MaxWaitSecForInput = sec
 	return p
 }
 
@@ -305,7 +314,7 @@ func (p *ClientBody) uploadFiles(with_files bool, files ...string) error {
 
 	// ファイルの表示を確認する
 	var isOK bool
-	for i := 0; i < p.MaxWaitSecForRequest; i++ {
+	for i := 0; i < p.MaxWaitSecForConfirmFIle; i++ {
 		isThere, err := p.Page.Locator("div[data-testid='attachments']").IsVisible()
 		if err != nil {
 			return SetError(err, "could not check the element is visible")
@@ -314,7 +323,7 @@ func (p *ClientBody) uploadFiles(with_files bool, files ...string) error {
 		// 投稿画像及び動画が表示された
 		if isThere {
 			isOK = true
-			log.Debug().Int("gui upload wait sec", p.MaxWaitSecForRequest-i).Msg("ok or could not upload file")
+			log.Debug().Int("gui upload wait sec", p.MaxWaitSecForConfirmFIle-i).Msg("ok or could not upload file")
 			break
 		}
 
@@ -322,7 +331,7 @@ func (p *ClientBody) uploadFiles(with_files bool, files ...string) error {
 	}
 	if with_files { // ファイル必須ならば、ファイルの表示を確認してから判断する
 		if !isOK {
-			return SetError(fmt.Errorf("could not upload file, timeout: past %ds", p.MaxWaitSecForRequest), "could not upload file")
+			return SetError(fmt.Errorf("could not upload file, timeout: past %ds", p.MaxWaitSecForConfirmFIle), "could not upload file")
 		}
 	}
 

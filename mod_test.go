@@ -38,7 +38,7 @@ func TestDo(t *testing.T) {
 	defer client.Close()
 
 	// set timeout, default is 120secs
-	client.SetTimeout(60)
+	client.SetDefaultTimeout(60)
 
 	// string to *string
 	temp := TELPHONE
