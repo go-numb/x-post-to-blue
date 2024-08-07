@@ -201,6 +201,16 @@ func (p *ClientBody) Login(username, password string, tel *string) error {
 	return nil
 }
 
+func (p *ClientBody) IsThere(locate string) (bool, error) {
+	if isThere, err := p.Page.Locator("input[data-testid='ocfEnterTextTextInput']").IsVisible(); err != nil {
+		return false, fmt.Errorf("additional credentials is not visible, error %v", err)
+	} else if !isThere {
+		return false, fmt.Errorf("additional credentials is not visible")
+	}
+
+	return true, nil
+}
+
 // CheckAdditionalCredentials 再確認のための電話番号入力画面が表示されているか確認する
 func (p *ClientBody) CheckAdditionalCredentials(tel string) error {
 	time.Sleep(1 * time.Second)
