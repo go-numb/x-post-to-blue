@@ -2,7 +2,9 @@ package xpostblue
 
 import (
 	"fmt"
+	"math/rand"
 	"net/url"
+	"time"
 
 	"github.com/rs/zerolog/log"
 )
@@ -189,4 +191,18 @@ func (p *ClientBody) ClickBtnPost(isPost bool) error {
 	}
 
 	return nil
+}
+
+// Wait 指定時間（ミリ秒）待機
+// minwaitmillsec引数を最低待機時間、ms引数を上限とした乱数msを追加し、待機
+func (p *ClientBody) Wait(minWaitMillisec, ms int) {
+	s := rand.NewSource(time.Now().UnixNano())
+	r := rand.New(s)
+
+	millisec := time.Duration(r.Intn(ms)) * time.Millisecond
+
+	// 最低待機時間
+	time.Sleep(time.Duration(minWaitMillisec * int(time.Millisecond)))
+	// 乱数待機時間
+	time.Sleep(millisec)
 }

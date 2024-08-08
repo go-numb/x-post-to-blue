@@ -428,10 +428,15 @@ func SetError(err error, msg any) error {
 	return fmt.Errorf("%v > %v", err, errors.New(s))
 }
 
+// wait 1秒以上待機に加え、引数を上限とした乱数値、追加待機する
 func wait(ms int) {
 	s := rand.NewSource(time.Now().UnixNano())
 	r := rand.New(s)
 
 	millisec := time.Duration(r.Intn(ms)) * time.Millisecond
-	time.Sleep(time.Second + millisec)
+
+	// 最低待機時間
+	time.Sleep(time.Second)
+	// 追加待機時間
+	time.Sleep(millisec)
 }
