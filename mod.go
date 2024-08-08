@@ -8,6 +8,7 @@ import (
 	"net/http"
 	"net/url"
 	"os"
+
 	"time"
 
 	"github.com/playwright-community/playwright-go"
@@ -43,7 +44,8 @@ type ClientBody struct {
 	Context playwright.BrowserContext
 	Page    playwright.Page
 
-	URL *url.URL
+	URL       *url.URL
+	ClickType ClickType
 
 	PostLocator *PostLocator
 
@@ -59,7 +61,7 @@ type PostLocator struct {
 	BtnID     string
 	InputPass string
 	BtnPass   string
-
+	// additional credentials
 	InputTel string
 	BtnTel   string
 
@@ -70,7 +72,15 @@ type PostLocator struct {
 	BtnPost     string
 }
 
-func New(isHeadless bool) *ClientBody {
+type ClickType int
+
+const (
+	_ ClickType = iota
+	ClickTypeClick
+	ClickTypeTap
+)
+
+func New(isHeadless bool, useDevice *string) *ClientBody {
 	pw, err := playwright.Run()
 	if err != nil {
 		log.Fatal().Msgf("could not run playwright: %v", err)
@@ -91,7 +101,15 @@ func New(isHeadless bool) *ClientBody {
 	// Mobile device settings, etc.
 	// Use older Pixel 5 model to avoid known bugs
 	// Specify latitude and longitude of Tokyo, Japan
-	device := pw.Devices["iPad Pro 11 landscape"]
+	for key, device := range pw.Devices {
+		log.Debug().Msgf("%s: %s", key, device.UserAgent)
+	}
+	device := pw.Devices["Desktop Firefox"]
+	if useDevice != nil {
+		device = pw.Devices[*useDevice]
+	}
+	// device := pw.Devices["iPad Pro 11"]
+	// device := pw.Devices["iPad Pro 11 landscape"]
 	context, err := context(device, browser)
 	if err != nil {
 		log.Fatal().Msgf("could not create context: %v", err)
@@ -118,7 +136,8 @@ func New(isHeadless bool) *ClientBody {
 		Context: context,
 		Page:    page,
 
-		URL: u,
+		URL:       u,
+		ClickType: ClickTypeTap,
 		PostLocator: &PostLocator{
 			LoginURL: TWITTER + PATHLOGIN,
 			ProURL:   TWITTERPRO,
@@ -147,6 +166,11 @@ func (p *ClientBody) Close() {
 	p.Page.Close()
 	p.Browser.Close()
 	p.Pw.Stop()
+}
+
+func (p *ClientBody) SetClickType(clickType ClickType) *ClientBody {
+	p.ClickType = clickType
+	return p
 }
 
 func (p *ClientBody) SetDefaultTimeout(sec int) *ClientBody {
@@ -211,10 +235,10 @@ func (p *ClientBody) Login(username, password string, tel *string) error {
 }
 
 func (p *ClientBody) IsThere(locate string) (bool, error) {
-	if isThere, err := p.Page.Locator("input[data-testid='ocfEnterTextTextInput']").IsVisible(); err != nil {
-		return false, fmt.Errorf("additional credentials is not visible, error %v", err)
+	if isThere, err := p.Page.Locator(locate).IsVisible(); err != nil {
+		return false, fmt.Errorf("additional credentials %s is not visible, error %v", locate, err)
 	} else if !isThere {
-		return false, fmt.Errorf("additional credentials is not visible")
+		return false, fmt.Errorf("additional credentials %s is not visible", locate)
 	}
 
 	return true, nil

@@ -12,6 +12,7 @@ func context(device *playwright.DeviceDescriptor, browser playwright.Browser) (p
 		Viewport:          device.Viewport,
 		JavaScriptEnabled: playwright.Bool(true),
 		UserAgent:         playwright.String(device.UserAgent),
+
 		DeviceScaleFactor: playwright.Float(device.DeviceScaleFactor),
 
 		HasTouch: playwright.Bool(device.HasTouch),

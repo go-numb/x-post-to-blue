@@ -34,7 +34,7 @@ func TestDo(t *testing.T) {
 	sleepSec := 5
 	files := []string{"./images/1.jpg", "./images/2.jpg"}
 
-	client := New(isHeadless)
+	client := New(isHeadless, nil)
 	defer client.Close()
 
 	// set timeout, default is 120secs

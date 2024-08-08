@@ -41,8 +41,19 @@ func (p *ClientBody) ClickBtnLogin() error {
 		return err
 	}
 
-	if err := p.Page.Locator(p.PostLocator.BtnID).Tap(); err != nil {
-		return fmt.Errorf("%v > could not click to next button", err)
+	switch p.ClickType {
+	case ClickTypeClick:
+		if err := p.Page.Locator(p.PostLocator.BtnID).Click(); err != nil {
+			return fmt.Errorf("%v > could not click to next button", err)
+		}
+
+	case ClickTypeTap:
+		if err := p.Page.Locator(p.PostLocator.BtnID).Tap(); err != nil {
+			return fmt.Errorf("%v > could not click to next button", err)
+		}
+
+	default:
+		return fmt.Errorf("click type is not defined")
 	}
 
 	return nil
@@ -61,14 +72,25 @@ func (p *ClientBody) InputTel(tel string) error {
 	return nil
 }
 
-// ログインページで、ClickTelBtn 電話番号入力後ボタンをクリック
-func (p *ClientBody) ClickTelBtn() error {
+// ログインページで、ClickBtnTel 電話番号入力後ボタンをクリック
+func (p *ClientBody) ClickBtnTel() error {
 	if isThere, err := p.IsThere(p.PostLocator.BtnTel); err != nil || !isThere {
 		return err
 	}
 
-	if err := p.Page.Locator(p.PostLocator.BtnTel).Nth(0).Tap(); err != nil {
-		return fmt.Errorf("%v > could not click to next button", err)
+	switch p.ClickType {
+	case ClickTypeClick:
+		if err := p.Page.Locator(p.PostLocator.BtnTel).Nth(0).Click(); err != nil {
+			return fmt.Errorf("%v > could not click to next button", err)
+		}
+
+	case ClickTypeTap:
+		if err := p.Page.Locator(p.PostLocator.BtnTel).Nth(0).Tap(); err != nil {
+			return fmt.Errorf("%v > could not click to next button", err)
+		}
+
+	default:
+		return fmt.Errorf("click type is not defined")
 	}
 
 	return nil
@@ -88,13 +110,82 @@ func (p *ClientBody) InputPassword(password string) error {
 }
 
 // ログインページで、ClickPassBtn パスワード入力後ボタンをクリック
-func (p *ClientBody) ClickPassBtn() error {
+func (p *ClientBody) ClickBtnPass() error {
 	if isThere, err := p.IsThere(p.PostLocator.BtnPass); err != nil || !isThere {
 		return err
 	}
 
-	if err := p.Page.Locator(p.PostLocator.BtnPass).Nth(0).Tap(); err != nil {
-		return fmt.Errorf("%v > could not click to next button", err)
+	switch p.ClickType {
+	case ClickTypeClick:
+		if err := p.Page.Locator(p.PostLocator.BtnPass).Nth(0).Click(); err != nil {
+			return fmt.Errorf("%v > could not click to next button", err)
+		}
+
+	case ClickTypeTap:
+		if err := p.Page.Locator(p.PostLocator.BtnPass).Nth(0).Tap(); err != nil {
+			return fmt.Errorf("%v > could not click to next button", err)
+		}
+
+	default:
+		return fmt.Errorf("click type is not defined")
+	}
+
+	return nil
+}
+
+// 投稿ページへ遷移
+func (p *ClientBody) ToPost() error {
+	u, _ := url.Parse(p.PostLocator.ProURL)
+	if _, err := p.Page.Goto(u.String()); err != nil {
+		return fmt.Errorf("%v > could not goto post page", err)
+	}
+	log.Debug().Msgf("target url: %s", u.String())
+
+	return nil
+}
+
+// 投稿ページで、InputText 投稿内容を入力
+func (p *ClientBody) InputText(msg string) error {
+	if isThere, err := p.IsThere(p.PostLocator.InputMsg); err != nil || !isThere {
+		return err
+	}
+
+	if err := p.Page.Locator(p.PostLocator.InputMsg).Fill(msg); err != nil {
+		return fmt.Errorf("%v > could not fill to post", err)
+	}
+
+	return nil
+}
+
+// 投稿ページで、InputFiles 投稿ファイルをアップロード
+func (p *ClientBody) InputFiles(with_file bool, files ...string) error {
+	// upload files
+	if err := p.uploadFiles(with_file, files...); err != nil {
+		return fmt.Errorf("%v > could not upload files", err)
+	}
+
+	return nil
+}
+
+// 投稿ページで、ClickBtnPost 投稿ボタンをクリック
+func (p *ClientBody) ClickBtnPost(isPost bool) error {
+	if !isPost {
+		return fmt.Errorf("post enabled, is_post is false")
+	}
+
+	switch p.ClickType {
+	case ClickTypeClick:
+		if err := p.Page.Locator(p.PostLocator.BtnPost).Click(); err != nil {
+			return fmt.Errorf("%v > could not click to post button", err)
+		}
+
+	case ClickTypeTap:
+		if err := p.Page.Locator(p.PostLocator.BtnPost).Tap(); err != nil {
+			return fmt.Errorf("%v > could not click to post button", err)
+		}
+
+	default:
+		return fmt.Errorf("click type is not defined")
 	}
 
 	return nil
