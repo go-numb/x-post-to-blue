@@ -1,2 +1,3 @@
 *.html
 *_test.go
+!seg_test.go

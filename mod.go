@@ -15,6 +15,8 @@ import (
 	"github.com/rs/zerolog/log"
 )
 
+// 日本語指定のため、ラベル文字列は日本語になっています。
+// lang=en に変更することで、UIラベルは英語になります。
 const (
 	// /i/flow/login
 	TWITTER    = "https://twitter.com"
@@ -83,7 +85,7 @@ const (
 func New(isHeadless bool, useDevice *string) *ClientBody {
 	pw, err := playwright.Run()
 	if err != nil {
-		log.Fatal().Msgf("could not run playwright: %v", err)
+		log.Fatal().Err(err).Msgf("could not run playwright")
 		return nil
 	}
 
@@ -94,7 +96,7 @@ func New(isHeadless bool, useDevice *string) *ClientBody {
 		Headless: playwright.Bool(isHeadless),
 	})
 	if err != nil {
-		log.Fatal().Msgf("could not launch browser: %v", err)
+		log.Fatal().Err(err).Msgf("could not launch browser")
 		return nil
 	}
 
@@ -112,13 +114,13 @@ func New(isHeadless bool, useDevice *string) *ClientBody {
 	// device := pw.Devices["iPad Pro 11 landscape"]
 	context, err := context(device, browser)
 	if err != nil {
-		log.Fatal().Msgf("could not create context: %v", err)
+		log.Fatal().Err(err).Msgf("could not create context")
 		return nil
 	}
 
 	page, err := context.NewPage()
 	if err != nil {
-		log.Fatal().Msgf("could not create page: %v", err)
+		log.Fatal().Err(err).Msgf("could not create page")
 		return nil
 	}
 
@@ -126,7 +128,7 @@ func New(isHeadless bool, useDevice *string) *ClientBody {
 
 	u, err := url.Parse(TWITTER)
 	if err != nil {
-		log.Fatal().Msgf("could not parse url: %v", err)
+		log.Fatal().Err(err).Msgf("could not parse url")
 		return nil
 	}
 
@@ -332,7 +334,7 @@ func (p *ClientBody) uploadFiles(with_files bool, files ...string) error {
 		if with_files { // ファイルの選択ができない場合、エラーを返す
 			return SetError(err, "could not upload file")
 		} else { // ファイルの投稿がなくても続行する
-			log.Debug().Msgf("ok or could not upload file: %v", err)
+			log.Debug().Err(err).Msgf("ok or could not upload file")
 		}
 	}
 

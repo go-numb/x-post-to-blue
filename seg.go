@@ -82,12 +82,12 @@ func (p *ClientBody) ClickBtnTel() error {
 
 	switch p.ClickType {
 	case ClickTypeClick:
-		if err := p.Page.Locator(p.PostLocator.BtnTel).Nth(0).Click(); err != nil {
+		if err := p.Page.Locator(p.PostLocator.BtnTel).First().Click(); err != nil {
 			return fmt.Errorf("%v > could not click to next button", err)
 		}
 
 	case ClickTypeTap:
-		if err := p.Page.Locator(p.PostLocator.BtnTel).Nth(0).Tap(); err != nil {
+		if err := p.Page.Locator(p.PostLocator.BtnTel).First().Tap(); err != nil {
 			return fmt.Errorf("%v > could not click to next button", err)
 		}
 
@@ -119,12 +119,12 @@ func (p *ClientBody) ClickBtnPass() error {
 
 	switch p.ClickType {
 	case ClickTypeClick:
-		if err := p.Page.Locator(p.PostLocator.BtnPass).Nth(0).Click(); err != nil {
+		if err := p.Page.Locator(p.PostLocator.BtnPass).First().Click(); err != nil {
 			return fmt.Errorf("%v > could not click to next button", err)
 		}
 
 	case ClickTypeTap:
-		if err := p.Page.Locator(p.PostLocator.BtnPass).Nth(0).Tap(); err != nil {
+		if err := p.Page.Locator(p.PostLocator.BtnPass).First().Tap(); err != nil {
 			return fmt.Errorf("%v > could not click to next button", err)
 		}
 
@@ -148,11 +148,11 @@ func (p *ClientBody) ToPost() error {
 
 // 投稿ページで、InputText 投稿内容を入力
 func (p *ClientBody) InputText(msg string) error {
-	if isThere, err := p.IsThere(p.PostLocator.InputMsg); err != nil || !isThere {
+	if isThere, err := p.Page.Locator(p.PostLocator.InputMsg).First().IsVisible(); err != nil || !isThere {
 		return err
 	}
 
-	if err := p.Page.Locator(p.PostLocator.InputMsg).Fill(msg); err != nil {
+	if err := p.Page.Locator(p.PostLocator.InputMsg).First().Fill(msg); err != nil {
 		return fmt.Errorf("%v > could not fill to post", err)
 	}
 
@@ -177,12 +177,12 @@ func (p *ClientBody) ClickBtnPost(isPost bool) error {
 
 	switch p.ClickType {
 	case ClickTypeClick:
-		if err := p.Page.Locator(p.PostLocator.BtnPost).Click(); err != nil {
+		if err := p.Page.Locator(p.PostLocator.BtnPost).First().Click(); err != nil {
 			return fmt.Errorf("%v > could not click to post button", err)
 		}
 
 	case ClickTypeTap:
-		if err := p.Page.Locator(p.PostLocator.BtnPost).Tap(); err != nil {
+		if err := p.Page.Locator(p.PostLocator.BtnPost).First().Tap(); err != nil {
 			return fmt.Errorf("%v > could not click to post button", err)
 		}
 
